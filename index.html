@@ -48,7 +48,10 @@
       <span>Checkout: Rp <span id="cart-total">0</span></span>
     </button>
   </div>
-
+<!-- Floating Call Waiter Button -->
+  <button onclick="callWaiter()" class="fixed bottom-24 right-4 bg-yellow-500 text-white p-4 rounded-full shadow-xl font-bold flex items-center justify-center z-30 hover:bg-yellow-600 transition">
+    <span class="text-2xl mr-2">🔔</span> Bantuan
+  </button>
   <script>
     // URL Backend GAS
     const API_URL = 'https://script.google.com/macros/s/AKfycbz4koq2EY4neFp6YyVsMTqcD-oM6WQNnp-_PofT96MWG0JfWBW1sZz6QgomwRksXVga/exec';
@@ -69,7 +72,23 @@
       fetchMenu();
       updateCartUI();
     };
-
+async function callWaiter() {
+    const meja = document.getElementById('nomor-meja').innerText;
+    const confirmCall = confirm(`Panggil pelayan ke Meja ${meja}?`);
+    
+    if(confirmCall) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'callWaiter', meja: meja })
+        });
+        const result = await response.json();
+        if(result.status === "Success") alert("Pelayan segera datang ke meja Anda.");
+      } catch (error) {
+        alert("Gagal memanggil pelayan. Cek koneksi Anda.");
+      }
+    }
+  }
     async function fetchMenu() {
       try {
         const response = await fetch(`${API_URL}?action=getMenu`);
