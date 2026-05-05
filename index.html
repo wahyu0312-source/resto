@@ -7,6 +7,23 @@
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#4f46e5">
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+  /* CSS Khusus untuk Printer Thermal Kasir */
+  @media print {
+    body * { visibility: hidden; } /* Sembunyikan semua elemen UI */
+    #print-area, #print-area * { visibility: visible; } /* Tampilkan hanya area struk */
+    #print-area {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 58mm; /* Standar printer thermal kecil */
+      font-family: monospace;
+      font-size: 12px;
+      padding: 0;
+      margin: 0;
+    }
+  }
+</style>
 </head>
 <body class="bg-gray-100 text-gray-800 pb-20">
 
