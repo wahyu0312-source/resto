@@ -255,40 +255,46 @@
       const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
       const totalPrice = cart.reduce((sum, item) => sum + (item.Harga * item.qty), 0);
       
-      // Update text
+      // Update angka total di luar dan di dalam keranjang
       document.getElementById('cart-count').innerText = totalQty;
       document.getElementById('cart-total').innerText = totalPrice.toLocaleString('id-ID');
       document.getElementById('float-count').innerText = totalQty;
       document.getElementById('float-total').innerText = totalPrice.toLocaleString('id-ID');
 
-      // Update Panel Items
+      // Update Panel Items (Tampilan List Pesanan)
       const container = document.getElementById('cart-items');
       container.innerHTML = '';
+      
       cart.forEach(item => {
         container.innerHTML += `
-          <div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-2xl">
-            <div class="flex items-center gap-3">
-              <div class="bg-[#111827] text-white w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold">
+          <div class="flex justify-between items-center bg-white border border-slate-100 p-4 rounded-2xl shadow-sm mb-3">
+            
+            <!-- Kiri: Lingkaran Qty & Nama Menu -->
+            <div class="flex items-center gap-4">
+              <div class="bg-[#111827] text-white w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0">
                 ${item.qty}x
               </div>
-              <p class="font-bold text-slate-800 text-sm w-32 truncate">${item.Nama}</p>
+              <p class="font-bold text-slate-800 text-[15px] truncate max-w-[120px] xs:max-w-[150px]">${item.Nama}</p>
             </div>
-            <div class="flex items-center gap-3">
-              <p class="font-bold text-slate-800 text-sm">Rp ${(item.Harga * item.qty).toLocaleString('id-ID')}</p>
+            
+            <!-- Kanan: Harga & Tombol Stacked (+/-) -->
+            <div class="flex items-center gap-4">
+              <p class="font-bold text-slate-800 text-[15px] whitespace-nowrap">Rp ${(item.Harga * item.qty).toLocaleString('id-ID')}</p>
+              
               <div class="flex flex-col gap-1">
-                <button onclick="changeQty('${item.ID_Menu}', 1)" class="w-6 h-5 bg-slate-100 rounded-md text-xs font-bold hover:bg-slate-200">+</button>
-                <button onclick="changeQty('${item.ID_Menu}', -1)" class="w-6 h-5 bg-slate-100 rounded-md text-xs font-bold hover:bg-slate-200">-</button>
+                <button onclick="changeQty('${item.ID_Menu}', 1)" class="w-7 h-6 bg-slate-100 rounded text-slate-700 font-black text-sm flex items-center justify-center hover:bg-slate-200 active:scale-95 shadow-sm">+</button>
+                <button onclick="changeQty('${item.ID_Menu}', -1)" class="w-7 h-6 bg-slate-100 rounded text-slate-700 font-black text-sm flex items-center justify-center hover:bg-slate-200 active:scale-95 shadow-sm">-</button>
               </div>
             </div>
+
           </div>
         `;
       });
 
-      // Tampilkan/Sembunyikan tombol floating
+      // Logika Muncul/Tenggelam Tombol Floating
       const floatBtn = document.getElementById('floating-btn');
       const panel = document.getElementById('cart-panel');
       
-      // Jika keranjang isi dan panel tertutup, munculkan floating btn
       if(totalQty > 0 && panel.classList.contains('translate-y-full')) {
         floatBtn.classList.remove('translate-y-32');
       } else {
