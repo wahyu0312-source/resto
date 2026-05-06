@@ -3,125 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Menu Digital Eksklusif</title>
+  <title>QR Ordering - SmartResto</title>
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#18181b"> 
+  <meta name="theme-color" content="#A31621">
   <script src="https://cdn.tailwindcss.com"></script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
   
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .font-serif-premium { font-family: 'Playfair Display', serif; }
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+    /* Menyembunyikan scrollbar tapi tetap bisa di-scroll */
     ::-webkit-scrollbar { width: 0px; background: transparent; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
   </style>
 </head>
-<body class="bg-stone-50 text-zinc-800 pb-32 antialiased overflow-x-hidden">
+<body class="text-slate-800 antialiased flex justify-center">
 
-  <!-- ================= SIDEBAR (BURGER MENU) ================= -->
-  <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-50 hidden transition-opacity duration-300 opacity-0" onclick="toggleSidebar()"></div>
-  <div id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-zinc-900 text-stone-100 z-50 transform -translate-x-full transition-transform duration-300 shadow-2xl flex flex-col">
-    <div class="p-5 border-b border-zinc-800 flex justify-between items-center">
-      <h2 class="text-xl font-serif-premium text-amber-400">SmartResto</h2>
-      <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-white text-3xl leading-none">&times;</button>
-    </div>
-    <div class="flex flex-col p-4 space-y-2 flex-grow">
-      <button onclick="toggleSidebar()" class="text-left py-3 px-4 rounded-xl hover:bg-zinc-800 transition flex items-center gap-3">
-        <span>🍽️</span> Halaman Menu
-      </button>
-      <button onclick="toggleSidebar(); openCart();" class="text-left py-3 px-4 rounded-xl hover:bg-zinc-800 transition flex items-center gap-3">
-        <span>🛒</span> Keranjang Saya
-      </button>
-      <button onclick="toggleSidebar(); callWaiter();" class="text-left py-3 px-4 rounded-xl hover:bg-zinc-800 transition flex items-center gap-3">
-        <span>🔔</span> Panggil Pelayan
-      </button>
-    </div>
-    <div class="p-4 border-t border-zinc-800 text-xs text-zinc-500 text-center">
-      Fine Culinary Experience &copy; 2026
-    </div>
-  </div>
+  <!-- Container utama (Dibatasi seperti layar HP) -->
+  <div class="w-full max-w-md bg-white min-h-screen relative shadow-2xl overflow-hidden flex flex-col">
+    
+    <!-- ================= HEADER MERAH ================= -->
+    <header class="bg-[#A31621] text-white p-6 rounded-b-[2rem] shadow-md z-20 relative">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs font-bold tracking-widest text-red-200 mb-1">QR ORDERING</p>
+          <h1 class="text-2xl font-bold">SmartResto</h1>
+          <p class="text-[11px] text-red-100 mt-1">Table <span id="nomor-meja">07</span> • Opens directly from QR</p>
+        </div>
+        <div class="bg-white/10 p-2.5 rounded-xl border border-white/20">
+          <!-- Icon Scanner/QR -->
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm13 3h3m-3 3h3m-3-6h3"></path>
+          </svg>
+        </div>
+      </div>
+    </header>
 
-  <!-- ================= HEADER DENGAN BURGER BUTTON ================= -->
-  <nav class="bg-zinc-900 text-stone-100 p-4 shadow-lg sticky top-0 z-40 rounded-b-3xl">
-    <div class="flex justify-between items-center max-w-4xl mx-auto">
+    <!-- ================= PENCARIAN & KATEGORI ================= -->
+    <div class="px-5 pt-5 pb-3 bg-white z-10 sticky top-0">
+      <!-- Kolom Pencarian -->
+      <input type="text" id="search-input" onkeyup="filterMenu()" placeholder="Search menu, drinks, or promos..." 
+             class="w-full border border-red-100 rounded-full py-3 px-5 focus:outline-none focus:border-red-300 shadow-sm text-sm placeholder-slate-400">
+      
+      <!-- Filter Kategori (Pill Buttons) -->
+      <div id="category-container" class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-1">
+        <button onclick="setCategory('All')" id="cat-All" class="cat-btn bg-[#A31621] text-white px-5 py-1.5 rounded-full text-sm font-bold border border-[#A31621] whitespace-nowrap transition-colors">All</button>
+        <button onclick="setCategory('Makanan')" id="cat-Makanan" class="cat-btn bg-white text-[#A31621] px-5 py-1.5 rounded-full text-sm font-bold border border-red-200 whitespace-nowrap transition-colors">Food</button>
+        <button onclick="setCategory('Minuman')" id="cat-Minuman" class="cat-btn bg-white text-[#A31621] px-5 py-1.5 rounded-full text-sm font-bold border border-red-200 whitespace-nowrap transition-colors">Drinks</button>
+        <button onclick="setCategory('Snack')" id="cat-Snack" class="cat-btn bg-white text-[#A31621] px-5 py-1.5 rounded-full text-sm font-bold border border-red-200 whitespace-nowrap transition-colors">Snacks</button>
+      </div>
+    </div>
+
+    <!-- ================= LIST MENU ================= -->
+    <div id="menu-container" class="flex-grow overflow-y-auto px-5 pb-32 space-y-4 mt-2">
+      <div class="animate-pulse flex flex-col items-center py-10">
+        <div class="w-8 h-8 border-4 border-red-100 border-t-[#A31621] rounded-full animate-spin"></div>
+        <p class="text-slate-400 mt-4 text-xs tracking-wide font-medium">Memuat menu...</p>
+      </div>
+    </div>
+
+    <!-- ================= PANEL CART (YOUR ORDER) ================= -->
+    <div id="cart-panel" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-red-50 p-6 transform translate-y-full transition-transform duration-300 z-50">
+      
+      <!-- Drag Handle (Kosmetik) -->
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
+
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg text-slate-800">Your Order</h3>
+        <span class="bg-red-50 text-[#A31621] px-3 py-1 rounded-full text-xs font-bold"><span id="cart-count">0</span> item</span>
+      </div>
+      
+      <!-- List Keranjang -->
+      <div id="cart-items" class="max-h-[35vh] overflow-y-auto space-y-3 mb-5 pr-2">
+        <!-- Item masuk ke sini -->
+      </div>
+      
+      <!-- Total Bayar -->
+      <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center mb-4 border border-slate-100">
+        <div>
+          <p class="text-xs text-slate-500 font-medium">Payment total</p>
+          <p class="text-xs font-bold text-slate-800 mt-0.5">Pay at cashier</p>
+        </div>
+        <p class="text-2xl font-black text-slate-800">Rp <span id="cart-total">0</span></p>
+      </div>
+      
+      <!-- Tombol Kirim -->
+      <button id="btn-submit" onclick="submitOrder()" class="w-full bg-[#111827] text-white font-bold py-4 rounded-2xl shadow-lg flex justify-between px-6 items-center hover:bg-slate-800 transition-colors active:scale-95">
+        <span>Pay Order</span>
+        <span>→</span>
+      </button>
+
+      <!-- Tombol Panggil Pelayan -->
+      <button onclick="callWaiter()" class="w-full text-center text-xs font-bold text-slate-400 mt-4 hover:text-slate-600">
+        Bantuan / Panggil Pelayan
+      </button>
+    </div>
+
+    <!-- Overlay Latar Belakang Gelap untuk Cart -->
+    <div id="cart-overlay" class="absolute inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity duration-300" onclick="closeCart()"></div>
+
+    <!-- Tombol Floating Buka Keranjang (Muncul jika ada pesanan dan panel sedang ditutup) -->
+    <button id="floating-btn" onclick="openCart()" class="absolute bottom-6 left-5 right-5 bg-[#A31621] text-white font-bold py-4 rounded-2xl shadow-[0_10px_25px_rgba(163,22,33,0.4)] flex justify-between px-6 items-center z-30 transform translate-y-32 transition-transform duration-300 hover:bg-red-800">
       <div class="flex items-center gap-3">
-        <!-- Burger Button -->
-        <button onclick="toggleSidebar()" class="p-2 -ml-2 text-zinc-300 hover:text-white transition active:scale-95">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-        <div class="flex flex-col">
-          <h1 class="text-xl font-serif-premium tracking-wide text-amber-400">SmartResto</h1>
-        </div>
+        <span class="bg-white/20 px-2 py-0.5 rounded-md text-sm"><span id="float-count">0</span>x</span>
+        <span>Lihat Pesanan</span>
       </div>
-      <div class="bg-zinc-800 border border-zinc-700 px-3 py-1.5 rounded-xl flex items-center shadow-inner">
-        <span class="text-xs text-zinc-400 mr-2 uppercase tracking-wide hidden md:inline">Table</span>
-        <span id="nomor-meja" class="font-bold text-amber-400 text-lg">1</span>
-      </div>
-    </div>
-  </nav>
+      <span>Rp <span id="float-total">0</span></span>
+    </button>
 
-  <!-- ================= KONTEN MENU ================= -->
-  <div class="max-w-4xl mx-auto p-5 mt-2">
-    <div class="mb-6 text-center">
-      <h2 class="text-2xl md:text-3xl font-serif-premium text-zinc-900">Menu Pilihan Kami</h2>
-      <div class="w-12 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
-    </div>
-
-    <!-- Grid Menu -->
-    <div id="menu-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-      <div class="col-span-full flex justify-center py-10">
-        <div class="animate-pulse flex flex-col items-center">
-          <div class="w-10 h-10 border-4 border-zinc-200 border-t-amber-500 rounded-full animate-spin"></div>
-          <p class="text-zinc-400 mt-4 text-sm tracking-wide">Menyiapkan hidangan...</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= FLOATING CART BAR ================= -->
-  <div class="fixed bottom-6 left-0 right-0 z-30 px-4 pointer-events-none transition-transform duration-300 transform translate-y-24" id="floating-cart">
-    <div class="max-w-4xl mx-auto pointer-events-auto">
-      <button onclick="openCart()" class="w-full bg-zinc-900 text-white px-5 py-4 rounded-3xl shadow-[0_20px_40px_rgb(0,0,0,0.3)] flex justify-between items-center transform transition active:scale-[0.98]">
-        <div class="flex items-center gap-3">
-          <div class="bg-amber-500 text-zinc-900 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner">
-            <span id="cart-count">0</span>
-          </div>
-          <div class="text-left hidden xs:block">
-            <p class="text-xs text-zinc-400 font-medium">Lihat Detail</p>
-          </div>
-        </div>
-        <div class="text-right">
-          <p class="text-xs text-zinc-400 font-medium">Total Tagihan</p>
-          <p class="font-bold text-amber-400 text-lg">Rp <span id="cart-total">0</span></p>
-        </div>
-      </button>
-    </div>
-  </div>
-
-  <!-- ================= MODAL KERANJANG (Cart Pop-up) ================= -->
-  <div id="cart-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end md:justify-center items-center transition-opacity">
-    <div class="bg-white w-full max-w-lg rounded-t-3xl md:rounded-3xl p-6 pb-10 shadow-2xl flex flex-col max-h-[85vh]">
-      
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-serif-premium font-bold text-zinc-900">Pesanan Anda</h2>
-        <button onclick="closeCart()" class="text-zinc-400 hover:text-zinc-800 text-3xl leading-none">&times;</button>
-      </div>
-      
-      <div id="cart-modal-items" class="overflow-y-auto flex-grow mb-6 space-y-4 pr-2"></div>
-      
-      <div class="border-t border-stone-200 pt-4 mb-6">
-        <div class="flex justify-between items-center font-bold text-lg">
-          <span class="text-zinc-800">Total Tagihan</span>
-          <span class="text-amber-500 text-xl">Rp <span id="modal-total">0</span></span>
-        </div>
-      </div>
-      
-      <button id="btn-submit-order" onclick="submitOrder()" class="w-full bg-zinc-900 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-zinc-800 transition active:scale-95">
-        Kirim ke Dapur
-      </button>
-    </div>
   </div>
 
   <!-- ================= JAVASCRIPT ================= -->
@@ -131,13 +122,9 @@
     
     let globalMenu = [];
     let cart = JSON.parse(localStorage.getItem('resto_cart')) || []; 
+    let currentCategory = 'All';
 
-    // Fitur PWA
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    }
-
-    // Ambil parameter Meja dari URL
+    // Ambil parameter Meja
     const urlParams = new URLSearchParams(window.location.search);
     if(urlParams.has('meja')) document.getElementById('nomor-meja').innerText = urlParams.get('meja');
 
@@ -146,176 +133,197 @@
       updateCartUI();
     };
 
-    // --- FUNGSI SIDEBAR (BURGER MENU) ---
-    function toggleSidebar() {
-      const overlay = document.getElementById('sidebar-overlay');
-      const sidebar = document.getElementById('sidebar');
-      
-      if (overlay.classList.contains('hidden')) {
-        // Buka Sidebar
-        overlay.classList.remove('hidden');
-        setTimeout(() => {
-          overlay.classList.remove('opacity-0');
-          sidebar.classList.remove('-translate-x-full');
-        }, 10);
-      } else {
-        // Tutup Sidebar
-        overlay.classList.add('opacity-0');
-        sidebar.classList.add('-translate-x-full');
-        setTimeout(() => {
-          overlay.classList.add('hidden');
-        }, 300);
-      }
-    }
-
-    // --- FUNGSI RENDER MENU ---
+    // --- LOGIKA FETCH DATA ---
     async function fetchMenu() {
       try {
         const response = await fetch(`${API_URL}?action=getMenu`);
         globalMenu = await response.json();
         renderMenu();
       } catch (error) {
-        document.getElementById('menu-container').innerHTML = '<p class="text-red-500 text-center col-span-full">Gagal memuat menu. Pastikan koneksi lancar.</p>';
+        document.getElementById('menu-container').innerHTML = '<p class="text-red-500 text-center text-sm">Gagal memuat menu.</p>';
       }
     }
 
+    // --- FUNGSI MENGAMBIL INISIAL HURUF (Misal: Nasi Goreng -> NG) ---
+    function getInitials(name) {
+      const words = name.split(' ');
+      let init = words[0].charAt(0);
+      if (words.length > 1) init += words[1].charAt(0);
+      return init.toUpperCase();
+    }
+
+    // --- RENDER MENU KE LAYAR ---
     function renderMenu() {
       const container = document.getElementById('menu-container');
       container.innerHTML = '';
-      const fallbackImage = "https://images.unsplash.com/photo-1414235077428-33898dd1458c?auto=format&fit=crop&w=500&q=60";
+      
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
 
-      globalMenu.forEach(item => {
-        if(item.Status === 'Tersedia') {
-          const card = `
-            <div class="bg-white rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-stone-100 overflow-hidden flex flex-col transition-transform hover:-translate-y-1">
-              <div class="h-36 md:h-48 bg-stone-200 relative overflow-hidden group">
-                <img src="${item.URL_Gambar}" onerror="this.onerror=null; this.src='${fallbackImage}';" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
-              </div>
-              <div class="p-3 md:p-4 flex flex-col flex-grow">
-                <h3 class="font-serif-premium font-bold text-sm md:text-lg text-zinc-900 leading-tight">${item.Nama}</h3>
-                <p class="text-[10px] md:text-xs text-zinc-500 mt-1 mb-3 line-clamp-2">${item.Deskripsi || ''}</p>
-                
-                <div class="mt-auto pt-2 border-t border-stone-100 flex justify-between items-center h-10">
-                  <p class="text-zinc-900 font-bold text-xs md:text-sm">Rp ${item.Harga.toLocaleString('id-ID')}</p>
-                  
-                  <!-- Area Tombol Dinamis -->
-                  <div id="btn-area-${item.ID_Menu}">
-                    ${getCardButtonHTML(item.ID_Menu)}
-                  </div>
-                </div>
-              </div>
+      let filteredMenu = globalMenu.filter(item => item.Status === 'Tersedia');
+      
+      // Filter Kategori
+      if(currentCategory !== 'All') {
+        filteredMenu = filteredMenu.filter(item => item.Kategori === currentCategory);
+      }
+
+      // Filter Pencarian
+      if(searchTerm !== '') {
+        filteredMenu = filteredMenu.filter(item => item.Nama.toLowerCase().includes(searchTerm));
+      }
+
+      if(filteredMenu.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-400 text-sm mt-10">Menu tidak ditemukan.</p>';
+        return;
+      }
+
+      filteredMenu.forEach(item => {
+        const initials = getInitials(item.Nama);
+        const card = `
+          <div class="border border-red-100 p-4 rounded-[1.5rem] flex items-center shadow-sm bg-white transition hover:shadow-md">
+            
+            <!-- Avatar Huruf Inisial (Sebagai pengganti gambar) -->
+            <div class="w-14 h-14 rounded-2xl border border-red-100 flex-shrink-0 flex items-center justify-center text-[#A31621] font-black text-xl bg-red-50">
+              ${initials}
             </div>
-          `;
-          container.innerHTML += card;
-        }
+            
+            <!-- Detail Menu -->
+            <div class="ml-4 flex-1">
+              <h3 class="font-bold text-slate-800 text-[15px] leading-tight">${item.Nama}</h3>
+              <p class="text-[11px] text-slate-400 mt-1 line-clamp-1">${item.Deskripsi || 'Pilihan favorit'}</p>
+              <p class="text-[#A31621] font-bold text-sm mt-1.5">Rp ${item.Harga.toLocaleString('id-ID')}</p>
+            </div>
+            
+            <!-- Tombol Choose -->
+            <button onclick="addToCart('${item.ID_Menu}')" class="bg-[#111827] text-white px-4 py-2 rounded-full text-xs font-bold shadow-md hover:bg-slate-800 active:scale-90 transition-all ml-2">
+              Choose
+            </button>
+
+          </div>
+        `;
+        container.innerHTML += card;
       });
     }
 
-    // Mengubah HTML tombol di Menu (antara "+" atau "- 1 +")
-    function getCardButtonHTML(id) {
-      const cartItem = cart.find(c => c.ID_Menu === id);
-      const qty = cartItem ? cartItem.qty : 0;
-
-      if (qty > 0) {
-        return `
-          <div class="flex items-center gap-2 bg-zinc-100 rounded-full border border-zinc-200 p-0.5">
-            <button onclick="changeQty('${id}', -1)" class="w-6 h-6 md:w-8 md:h-8 bg-white text-zinc-800 rounded-full font-bold shadow-sm hover:bg-zinc-200 active:scale-90 transition-transform">-</button>
-            <span class="font-bold text-xs md:text-sm w-3 md:w-4 text-center text-zinc-800">${qty}</span>
-            <button onclick="changeQty('${id}', 1)" class="w-6 h-6 md:w-8 md:h-8 bg-zinc-900 text-white rounded-full font-bold shadow-sm hover:bg-amber-500 hover:text-zinc-900 active:scale-90 transition-all">+</button>
-          </div>
-        `;
-      } else {
-        return `
-          <button onclick="changeQty('${id}', 1)" class="bg-zinc-900 text-white w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center font-bold hover:bg-amber-500 hover:text-zinc-900 shadow-md active:scale-90 transition-all">+</button>
-        `;
-      }
+    // --- FUNGSI FILTER & PENCARIAN ---
+    function filterMenu() {
+      renderMenu();
     }
 
-    // Fungsi Utama Tambah/Kurang (Bisa dipanggil dari Grid Menu ATAU Modal Keranjang)
-    function changeQty(id, delta) {
-      const item = globalMenu.find(m => m.ID_Menu === id);
-      let cartItem = cart.find(c => c.ID_Menu === id);
-
-      if (!cartItem && delta > 0) {
-        cart.push({...item, qty: 1});
-      } else if (cartItem) {
-        cartItem.qty += delta;
-        if (cartItem.qty <= 0) {
-          cart = cart.filter(c => c.ID_Menu !== id);
-        }
+    function setCategory(cat) {
+      currentCategory = cat;
+      // Reset styling tombol kategori
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.classList.remove('bg-[#A31621]', 'text-white', 'border-[#A31621]');
+        btn.classList.add('bg-white', 'text-[#A31621]', 'border-red-200');
+      });
+      // Beri warna merah pada tombol yang diklik
+      const activeBtn = document.getElementById(`cat-${cat}`);
+      if(activeBtn) {
+        activeBtn.classList.remove('bg-white', 'text-[#A31621]', 'border-red-200');
+        activeBtn.classList.add('bg-[#A31621]', 'text-white', 'border-[#A31621]');
       }
+      renderMenu();
+    }
+
+    // --- FUNGSI KERANJANG ---
+    function addToCart(id) {
+      const item = globalMenu.find(m => m.ID_Menu === id);
+      const exist = cart.find(c => c.ID_Menu === id);
+      if(exist) exist.qty++;
+      else cart.push({...item, qty: 1});
       
       localStorage.setItem('resto_cart', JSON.stringify(cart));
       updateCartUI();
+      if (navigator.vibrate) navigator.vibrate(50);
+      
+      // Otomatis buka panel jika baru pertama masuk
+      if(cart.length === 1) openCart();
+    }
 
-      // Update Tampilan Tombol di Card Menu tanpa mereload seluruh halaman
-      const btnArea = document.getElementById(`btn-area-${id}`);
-      if(btnArea) btnArea.innerHTML = getCardButtonHTML(id);
-
-      // Jika modal sedang terbuka, perbarui juga tampilan modalnya
-      if(!document.getElementById('cart-modal').classList.contains('hidden')) {
+    function changeQty(id, delta) {
+      const item = cart.find(c => c.ID_Menu === id);
+      if(item) {
+        item.qty += delta;
+        if(item.qty <= 0) cart = cart.filter(c => c.ID_Menu !== id); 
+        localStorage.setItem('resto_cart', JSON.stringify(cart));
+        updateCartUI();
         if(cart.length === 0) closeCart();
-        else renderCartModal();
       }
-
-      if (navigator.vibrate) navigator.vibrate(30);
     }
 
     function updateCartUI() {
       const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
       const totalPrice = cart.reduce((sum, item) => sum + (item.Harga * item.qty), 0);
       
+      // Update text
       document.getElementById('cart-count').innerText = totalQty;
       document.getElementById('cart-total').innerText = totalPrice.toLocaleString('id-ID');
-      document.getElementById('modal-total').innerText = totalPrice.toLocaleString('id-ID');
+      document.getElementById('float-count').innerText = totalQty;
+      document.getElementById('float-total').innerText = totalPrice.toLocaleString('id-ID');
 
-      // Animasi Floating Bar (Muncul kalau ada barang, sembunyi kalau 0)
-      const floatingCart = document.getElementById('floating-cart');
-      if (totalQty > 0) {
-        floatingCart.classList.remove('translate-y-24');
-      } else {
-        floatingCart.classList.add('translate-y-24');
-      }
-    }
-
-    // --- FUNGSI MODAL KERANJANG ---
-    function openCart() {
-      if(cart.length === 0) return alert("Keranjang Anda masih kosong.");
-      document.getElementById('cart-modal').classList.remove('hidden');
-      document.getElementById('cart-modal').classList.add('flex');
-      renderCartModal();
-    }
-
-    function closeCart() {
-      document.getElementById('cart-modal').classList.add('hidden');
-      document.getElementById('cart-modal').classList.remove('flex');
-    }
-
-    function renderCartModal() {
-      const container = document.getElementById('cart-modal-items');
+      // Update Panel Items
+      const container = document.getElementById('cart-items');
       container.innerHTML = '';
-      
       cart.forEach(item => {
         container.innerHTML += `
-          <div class="flex justify-between items-center bg-stone-50 p-3 rounded-2xl border border-stone-100">
-            <div class="flex-1 pr-2">
-              <p class="font-bold text-zinc-800 text-sm leading-tight">${item.Nama}</p>
-              <p class="text-xs text-amber-600 font-bold mt-1">Rp ${(item.Harga * item.qty).toLocaleString('id-ID')}</p>
+          <div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-2xl">
+            <div class="flex items-center gap-3">
+              <div class="bg-[#111827] text-white w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold">
+                ${item.qty}x
+              </div>
+              <p class="font-bold text-slate-800 text-sm w-32 truncate">${item.Nama}</p>
             </div>
-            <div class="flex items-center gap-2 bg-white border border-stone-200 rounded-full p-1 shadow-sm">
-              <button onclick="changeQty('${item.ID_Menu}', -1)" class="w-6 h-6 bg-stone-100 text-zinc-600 rounded-full font-bold hover:bg-stone-200 active:scale-90">-</button>
-              <span class="font-bold text-sm w-4 text-center text-zinc-800">${item.qty}</span>
-              <button onclick="changeQty('${item.ID_Menu}', 1)" class="w-6 h-6 bg-zinc-900 text-white rounded-full font-bold hover:bg-zinc-700 active:scale-90">+</button>
+            <div class="flex items-center gap-3">
+              <p class="font-bold text-slate-800 text-sm">Rp ${(item.Harga * item.qty).toLocaleString('id-ID')}</p>
+              <div class="flex flex-col gap-1">
+                <button onclick="changeQty('${item.ID_Menu}', 1)" class="w-6 h-5 bg-slate-100 rounded-md text-xs font-bold hover:bg-slate-200">+</button>
+                <button onclick="changeQty('${item.ID_Menu}', -1)" class="w-6 h-5 bg-slate-100 rounded-md text-xs font-bold hover:bg-slate-200">-</button>
+              </div>
             </div>
           </div>
         `;
       });
+
+      // Tampilkan/Sembunyikan tombol floating
+      const floatBtn = document.getElementById('floating-btn');
+      const panel = document.getElementById('cart-panel');
+      
+      // Jika keranjang isi dan panel tertutup, munculkan floating btn
+      if(totalQty > 0 && panel.classList.contains('translate-y-full')) {
+        floatBtn.classList.remove('translate-y-32');
+      } else {
+        floatBtn.classList.add('translate-y-32');
+      }
     }
 
-    // --- FUNGSI KIRIM PESANAN ---
+    // --- ANIMASI BUKA TUTUP PANEL CART ---
+    function openCart() {
+      if(cart.length === 0) return;
+      document.getElementById('floating-btn').classList.add('translate-y-32');
+      document.getElementById('cart-panel').classList.remove('translate-y-full');
+      
+      const overlay = document.getElementById('cart-overlay');
+      overlay.classList.remove('hidden');
+      setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+    }
+
+    function closeCart() {
+      document.getElementById('cart-panel').classList.add('translate-y-full');
+      
+      const overlay = document.getElementById('cart-overlay');
+      overlay.classList.add('opacity-0');
+      setTimeout(() => overlay.classList.add('hidden'), 300);
+      
+      if(cart.length > 0) document.getElementById('floating-btn').classList.remove('translate-y-32');
+    }
+
+    // --- FUNGSI SUBMIT KE GOOGLE SHEETS ---
     async function submitOrder() {
-      const btn = document.getElementById('btn-submit-order');
-      btn.innerText = 'Mengirim Pesanan...';
+      if(cart.length === 0) return;
+      
+      const btn = document.getElementById('btn-submit');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="mx-auto">Memproses...</span>';
       btn.disabled = true;
       
       const payload = {
@@ -332,30 +340,27 @@
         const result = await response.json();
         
         if(result.status === "Success") {
-          alert("Pesanan Diterima! Nomor Order: " + result.orderId);
+          alert("Pesanan sukses! Silakan lakukan pembayaran di kasir. \nID: " + result.orderId);
           cart = [];
           localStorage.removeItem('resto_cart');
           updateCartUI();
-          renderMenu(); // Reset semua tombol menjadi '+'
           closeCart();
         }
       } catch (error) {
-        alert("Koneksi terputus. Silakan coba lagi.");
+        alert("Gagal mengirim pesanan. Periksa internet Anda.");
       } finally {
-        btn.innerText = 'Kirim ke Dapur';
+        btn.innerHTML = originalText;
         btn.disabled = false;
       }
     }
 
-    // --- FUNGSI PANGGIL PELAYAN ---
     async function callWaiter() {
       const meja = document.getElementById('nomor-meja').innerText;
-      if(confirm(`Panggil pelayan ke Meja ${meja}?`)) {
-        try {
-          await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'callWaiter', meja: meja }) });
-          alert("Bantuan segera datang. Staf kami akan menghampiri meja Anda.");
-        } catch (error) { alert("Gagal memanggil pelayan. Pastikan internet Anda aktif."); }
-      }
+      try {
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'callWaiter', meja: meja }) });
+        alert("Pelayan sedang menuju ke meja Anda.");
+        closeCart();
+      } catch (error) { alert("Gagal memanggil pelayan."); }
     }
   </script>
 </body>
